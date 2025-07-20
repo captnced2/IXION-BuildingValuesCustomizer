@@ -1,7 +1,14 @@
 # Building Values Customizer
-[Nexusmods]()  
+[Nexusmods](https://www.nexusmods.com/ixion/mods/17)  
 <br>
-This mod adds a bunch of settings in the settings tab, that change values of buildings. For example stockpile capacity.
+This mod adds a bunch of settings in the settings tab, that change values of buildings.  
+
+Currently includes:
+- Stockpile capacity
+- Stockpile transporters
+- Quarters and Cell Housing capacity
+﻿- Battery capacity
+- Tech Lab science production amount and delay
 
 # Installation
 Simply download [BepInEx](https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.2) and extract it into your IXION ("\steamapps\common\IXION\") folder.  
