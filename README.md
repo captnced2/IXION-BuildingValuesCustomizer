@@ -9,6 +9,11 @@ Currently includes:
 - Quarters and Cell Housing capacity
 ﻿- Battery capacity
 - Tech Lab science production amount and delay
+- Algae and Crop Farm grow duration and food per cycle
+- Algae Plantation amount
+- Insect Farm grow duration and food per production
+- Steel Mill, Electronics Factory and Polymer Refinery cost and produced amount
+- Probe scan range
 
 # Installation
 Simply download [BepInEx](https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.2) and extract it into your IXION ("\steamapps\common\IXION\") folder.  
