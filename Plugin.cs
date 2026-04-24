@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
@@ -9,16 +8,15 @@ namespace BuildingValuesCustomizer;
 
 [BepInPlugin(Guid, Name, Version)]
 [BepInProcess("IXION.exe")]
-[BepInDependency("captnced.IMHelper")]
+[BepInDependency("captnced.IMHelper", ">= 3.3.0")]
 public class Plugin : BasePlugin
 {
     private const string Guid = "captnced.BuildingValuesCustomizer";
     internal const string Name = "BuildingValuesCustomizer";
-    private const string Version = "1.0.0";
+    private const string Version = "2.0.0";
     internal new static ManualLogSource Log;
     internal static bool enabled = true;
     private static Harmony harmony;
-    internal static List<SettingsHelper.SettingsSection> sections;
 
     public override void Load()
     {
@@ -38,7 +36,6 @@ public class Plugin : BasePlugin
 
     private static void init()
     {
-        sections = [];
         Buildings.init();
         harmony.PatchAll();
         foreach (var patch in harmony.GetPatchedMethods())
@@ -48,8 +45,8 @@ public class Plugin : BasePlugin
 
     private static void disable()
     {
-        foreach (var section in sections) section?.destroySection();
-        sections = [];
+        Buildings.topSection.destroy();
+        harmony.UnpatchSelf();
         Log.LogInfo("Unloaded \"" + Name + "\" version " + Version + "!");
     }
 

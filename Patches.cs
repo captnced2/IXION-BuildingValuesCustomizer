@@ -1,7 +1,9 @@
-﻿using BulwarkStudios.Stanford.Common.TechTree;
+﻿using BulwarkStudios.Stanford.Core.GameResources;
+using BulwarkStudios.Stanford.SolarSystem.SpaceVehicles.Actions;
 using BulwarkStudios.Stanford.Torus.Buildings;
 using BulwarkStudios.Stanford.Torus.Buildings.Actions;
 using HarmonyLib;
+using UnityEngine;
 
 namespace BuildingValuesCustomizer;
 
@@ -12,7 +14,6 @@ public static class Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (!Plugin.enabled) return;
             foreach (var set in Buildings.stockpileSettings)
                 if (set.getDefaultValue() == __result)
                     __result = set.getValue();
@@ -24,7 +25,6 @@ public static class Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (!Plugin.enabled) return;
             foreach (var set in Buildings.housingSettings)
                 if (set.getDefaultValue() == __result)
                     __result = set.getValue();
@@ -36,7 +36,6 @@ public static class Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (!Plugin.enabled) return;
             foreach (var set in Buildings.cellHousingSettings)
                 if (set.getDefaultValue() == __result)
                     __result = set.getValue();
@@ -49,7 +48,6 @@ public static class Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (!Plugin.enabled) return;
             foreach (var set in Buildings.batteriesSettings)
                 if (set.getDefaultValue() * 60 == __result)
                     __result = set.getValue() * 60;
@@ -59,20 +57,19 @@ public static class Patches
     [HarmonyPatch(typeof(BuildingActionBehaviourScienceLab), nameof(BuildingActionBehaviourScienceLab.GetActiveTeam))]
     public static class ScienceLab
     {
-        private static int done;
-
-        public static void Postfix(BuildingActionBehaviourScienceLab __instance)
+        public static void Postfix(ref BuildingActionBehaviourScienceLab.Team __result)
         {
-            if (!Plugin.enabled) return;
-            done++;
-            if (done is < 2 or > 2) return;
-            foreach (var team in __instance.teams)
             foreach (var set in Buildings.scienceLabSettings)
-                if (team.sciencePerProduction == set.Key.getDefaultValue() &&
-                    team.cyclePerProduction == set.Value.getDefaultValue())
+                if (__result.SciencePerProduction == set.Key.getDefaultValue() &&
+                    Mathf.Approximately(__result.CyclePerProduction, set.Value.getDefaultValue()))
                 {
-                    team.sciencePerProduction = set.Key.getValue();
-                    team.cyclePerProduction = set.Value.getValue();
+                    var newTeam = new BuildingActionBehaviourScienceLab.Team
+                    {
+                        technology = __result.technology,
+                        sciencePerProduction = set.Key.getValue(),
+                        cyclePerProduction = set.Value.getValue()
+                    };
+                    __result = newTeam;
                 }
         }
     }
@@ -82,7 +79,6 @@ public static class Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (!Plugin.enabled) return;
             foreach (var set in Buildings.stockpileTransporterSettings)
                 if (set.getDefaultValue() == __result)
                     __result = set.getValue();
