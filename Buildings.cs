@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Il2CppSystem;
 using IMHelper;
 
 namespace BuildingValuesCustomizer;
@@ -11,9 +12,16 @@ public static class Buildings
     internal static readonly List<SettingsHelper.NumberInputSetting> housingSettings = [];
     internal static readonly List<SettingsHelper.NumberInputSetting> cellHousingSettings = [];
     internal static readonly List<SettingsHelper.NumberInputSetting> batteriesSettings = [];
+    internal static List<SettingsHelper.NumberInputSetting> miscellaneousSettings = [];
+    internal static readonly List<SettingsHelper.NumberInputSetting> algaeFarmSettings = [];
+    internal static readonly List<SettingsHelper.NumberInputSetting> insectFarmSettings = [];
+    internal static SettingsHelper.NumberInputSetting insectFarmAmountSetting;
+    internal static readonly List<SettingsHelper.NumberInputSetting> factoryCostSettings = [];
+    internal static readonly List<SettingsHelper.NumberInputSetting> factoryResultSettings = [];
 
     internal static readonly List<KeyValuePair<SettingsHelper.NumberInputSetting, SettingsHelper.NumberInputSetting>>
         scienceLabSettings = [];
+    internal static readonly List<KeyValuePair<SettingsHelper.NumberInputSetting, SettingsHelper.NumberInputSetting>> cropsFarmSettings = [];
 
     internal static void init()
     {
@@ -24,6 +32,11 @@ public static class Buildings
         housing();
         batteries();
         scienceLab();
+        foodProduction();
+        factories();
+        miscellaneous();
+    }
+
     private static void reset()
     {
         topSection = new SettingsHelper.SettingsSection(Plugin.Name);
@@ -32,7 +45,13 @@ public static class Buildings
         housingSettings.Clear();
         cellHousingSettings.Clear();
         batteriesSettings.Clear();
+        miscellaneousSettings.Clear();
+        algaeFarmSettings.Clear();
+        insectFarmSettings.Clear();
         scienceLabSettings.Clear();
+        cropsFarmSettings.Clear();
+        factoryCostSettings.Clear();
+        factoryResultSettings.Clear();
     }
 
     private static void stockpileCapacity()
@@ -153,13 +172,93 @@ public static class Buildings
             new SettingsHelper.NumberInputSetting("Tier 3 Team Science Amount", description, 5, true),
             new SettingsHelper.NumberInputSetting("Tier 3 Team Cycles Amount", descriptionCycle, 5, true)));
         scienceLabSettings.Add(new KeyValuePair<SettingsHelper.NumberInputSetting, SettingsHelper.NumberInputSetting>(
-            new SettingsHelper.NumberInputSetting(sec, "Tier 4 Team Science Amount", description, 5, false),
-            new SettingsHelper.NumberInputSetting(sec, "Tier 4 Team Cycles Amount", descriptionCycle, 3, false)));
             new SettingsHelper.NumberInputSetting("Tier 4 Team Science Amount", description, 5, true),
             new SettingsHelper.NumberInputSetting("Tier 4 Team Cycles Amount", descriptionCycle, 3, true)));
         foreach (var s in scienceLabSettings)
         {
             sec.addItem(s.Key);
             sec.addItem(s.Value);
+        }
+    }
+
+    private static void foodProduction()
+    {
+        var sec = new SettingsHelper.SettingsSection("Food Production");
+        topSection.addItem(sec);
+        const string descriptionDuration = "Number of cycles between harvests";
+        const string descriptionFood = "Amount of food produced per field (not farm) per cycle";
+        for (var i = 1; i < 6; i++)
+        {
+            cropsFarmSettings.Add(new KeyValuePair<SettingsHelper.NumberInputSetting, SettingsHelper.NumberInputSetting>(
+                new SettingsHelper.NumberInputSetting("Crop Farm Tier " + i + " Grow Duration", descriptionDuration, (float) Math.Round(600f / float.Parse("1," + (i - 1)) / 60f, 1), true),
+                new SettingsHelper.NumberInputSetting("Crop Farm Tier " + i + " Food per Cycle", descriptionFood, (float) Math.Round(1.2f * float.Parse("1," + (i - 1)), 2), true)));
+        }
+        
+        for (var i = 1; i < 6; i++)
+        {
+            cropsFarmSettings.Add(new KeyValuePair<SettingsHelper.NumberInputSetting, SettingsHelper.NumberInputSetting>(
+                new SettingsHelper.NumberInputSetting("Algae Farm Tier " + i + " Grow Duration", descriptionDuration, (float) Math.Round(300f / float.Parse("1," + (i - 1)) / 60f, 1), true),
+                new SettingsHelper.NumberInputSetting("Algae Farm Tier " + i + " Food per Cycle", descriptionFood, (float) Math.Round(3.6f * float.Parse("1," + (i - 1)), 2), true)));
+        }
+
+        for (var i = 4; i < 7; i++)
+        {
+            algaeFarmSettings.Add(new SettingsHelper.NumberInputSetting("Algae Farm Tier " + (i - 3) + " Plantation Amount", "Max amount of plantations/fields for algae farms", i, true));
+        }
+        for (var i = 0; i < 3; i++)
+        {
+            insectFarmSettings.Add(new SettingsHelper.NumberInputSetting("Insect Farm Tier " + (i + 1) + " Growth Duration", descriptionDuration, 1.0f - i * 0.1f, true));
+        }
+
+        insectFarmAmountSetting = new SettingsHelper.NumberInputSetting("Insect Farm Produced Amount","Amount of food produced", 1, true);
+        
+        foreach (var s in cropsFarmSettings)
+        {
+            sec.addItem(s.Key);
+            sec.addItem(s.Value);
+        }
+        sec.addItem(algaeFarmSettings);
+        sec.addItem(insectFarmSettings);
+        sec.addItem(insectFarmAmountSetting);
+    }
+
+    private static void factories()
+    {
+        var sec = new SettingsHelper.SettingsSection("Factories");
+        topSection.addItem(sec);
+        const string descriptionCostSteel = "Amount of iron required for production";
+        const string descriptionCostElectronics = "Amount of silicon required for production";
+        const string descriptionCostPolymer = "Amount of carbon required for production";
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Steel Mill Cost Tier 1", descriptionCostSteel, 15, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Steel Mill Cost Tier 2", descriptionCostSteel, 13, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Steel Mill Cost Tier 3", descriptionCostSteel, 10, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Electronics Factory Cost Tier 1", descriptionCostElectronics, 30, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Electronics Factory Cost Tier 2", descriptionCostElectronics, 25, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Electronics Factory Cost Tier 3", descriptionCostElectronics, 20, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Polymer Refinery Cost Tier 1", descriptionCostPolymer, 5, true));
+        factoryCostSettings.Add(new SettingsHelper.NumberInputSetting("Polymer Refinery Cost Tier 2", descriptionCostPolymer, 4, true));
+        
+        factoryResultSettings.Add(new SettingsHelper.NumberInputSetting("Steel Mill Produced Amount", "Amount of alloy produced", 15, true));
+        factoryResultSettings.Add(new SettingsHelper.NumberInputSetting("Electronics Factory Produced Amount", "Amount of electronics produced", 1, true));
+        factoryResultSettings.Add(new SettingsHelper.NumberInputSetting("Polymer Refinery Produced Amount","Amount of polymer produced", 5, true));
+        
+        foreach (var s in factoryCostSettings)
+        {
+            sec.addItem(s);
+        }
+        foreach (var s in factoryResultSettings)
+        {
+            sec.addItem(s);
+        }
+    }
+
+    private static void miscellaneous()
+    {
+        miscellaneousSettings = [];
+        var sec = new SettingsHelper.SettingsSection("Miscellaneous");
+        topSection.addItem(sec);
+        miscellaneousSettings.Add(new SettingsHelper.NumberInputSetting("Probe Scan Range", "Size of scanned area around the probe\n(resource estimates might be inaccurate at higher values)", 5, true));
+        
+        sec.addItem(miscellaneousSettings);
     }
 }
